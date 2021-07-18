@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com</groupId>
-  <artifactId>house.coffee</artifactId>
+  <artifactId>coffeehouse</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>house.coffee</name>
+  <name>coffeehouse</name>
   <url>http://maven.apache.org</url>
 
   <properties>
