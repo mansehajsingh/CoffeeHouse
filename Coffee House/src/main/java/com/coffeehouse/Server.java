@@ -17,7 +17,7 @@ public class Server {
 	private int port;
 	private ServerSocket serverSocket;
 
-	private HashMap<Integer, ServerThread> activeThreads = new HashMap<Integer, ServerThread>();
+	private HashMap<String, ServerThread> activeThreads = new HashMap<String, ServerThread>();
 
 	/**
 	 * Server object.
