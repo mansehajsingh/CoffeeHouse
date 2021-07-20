@@ -15,9 +15,14 @@ import java.util.HashMap;
 public class Server {
 
 	private int port;
+	private String serverName;
 	private ServerSocket serverSocket;
 
 	private HashMap<String, ServerThread> activeThreads = new HashMap<String, ServerThread>();
+
+	private Thread mainThread;
+	
+	private boolean isActive;
 
 	/**
 	 * Server object.
@@ -25,7 +30,7 @@ public class Server {
 	 * @param port the port on the localhost to which a ServerSocket will be
 	 *             assigned
 	 */
-	public Server(int port) {
+	public Server(int port, String serverName) {
 		this.port = port;
 
 		try {
@@ -47,6 +52,10 @@ public class Server {
 		return port;
 	}
 
+	public String getServerName() {
+		return serverName;
+	}
+
 	/**
 	 * Returns the ServerSocket that the server is operating on.
 	 * 
@@ -56,17 +65,31 @@ public class Server {
 		return serverSocket; // returns ServerSocket object that this server has initialized
 	}
 
-	public void activate() throws IOException {
+	public void activate() {
+		
+		isActive = true;
 
-		while (true) { // infinite loop
+		mainThread = new Thread() {
 
-			if (activeThreads.size() <= 30) { // we do not want to exceed a maximum of 30 threads on the server
-				Socket clientSocket = serverSocket.accept();
-				ServerThread serverThread = new ServerThread(clientSocket);
-				serverThread.start();
+			public void run() {
+
+				while (true) { // infinite loop
+
+					if (activeThreads.size() <= 30) { // we do not want to exceed a maximum of 30 threads on the server
+						Socket clientSocket = null;
+						try {
+							clientSocket = serverSocket.accept();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						ServerThread serverThread = new ServerThread(clientSocket);
+						serverThread.start();
+					}
+				}
+
 			}
-
-		}
+		};
 
 	}
 

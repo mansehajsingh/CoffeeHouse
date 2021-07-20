@@ -9,13 +9,17 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.BindException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -23,7 +27,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
-public class UserInterface implements DocumentListener {
+public class UserInterface implements DocumentListener, ActionListener {
 
 	// Primary Components
 	public JFrame frame;
@@ -37,21 +41,47 @@ public class UserInterface implements DocumentListener {
 	public JPanel brandPanel;
 	public JLabel firstWord;
 	public JLabel secondWord;
-	
+
 	public JLabel editionLabel;
 
 	public JTextField portField;
 	public JLabel portLabel;
+	public JLabel portError;
 
 	public JTextField nameField;
 	public JLabel nameLabel;
-	
+	public JLabel nameError;
+
 	public JButton startButton;
+
+	Font medium = null;
+	Font extraBold = null;
+	Font light = null;
+
+	// Server Menu Components
+	public JPanel serverPanel;
+
+	public JPanel navigationPanel;
+	public JPanel centerPanel;
+	public JPanel sidePanel;
+
+	public JPanel navLeft;
+	public JPanel navRight;
+
+	public JButton serverStartButton;
+	public JButton serverStopButton;
 
 	public UserInterface() {
 	}
 
-	public void mainMenu() {
+	public void setView(JPanel panel) {
+		mainPanel.removeAll();
+		mainPanel.add(panel);
+		mainPanel.repaint();
+		mainPanel.revalidate();
+	}
+
+	public void startMenu() {
 
 		UIManager.put("Button.select", new Color(0f, 0f, 0f, 0f)); // Gets rid of button select color.
 
@@ -68,15 +98,17 @@ public class UserInterface implements DocumentListener {
 		brandPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		firstWord = new JLabel("coffee");
 		secondWord = new JLabel("house");
-		
+
 		editionLabel = new JLabel("Server Edition");
 
 		portField = new JTextField();
 		portLabel = new JLabel("localhost port");
+		portError = new JLabel("");
 
 		nameField = new JTextField();
 		nameLabel = new JLabel("discoverable name");
-		
+		nameError = new JLabel("");
+
 		startButton = new JButton("get started");
 
 		// Setting appearance
@@ -96,7 +128,7 @@ public class UserInterface implements DocumentListener {
 		}
 		logo.setAlignmentX(Component.CENTER_ALIGNMENT);
 		logo.setPreferredSize(new Dimension(20, 20));
-		logo.setBorder(BorderFactory.createEmptyBorder(frame.getHeight()/10, 0, 20, 0));
+		logo.setBorder(BorderFactory.createEmptyBorder(frame.getHeight() / 10, 0, 20, 0));
 
 		portField.setAlignmentX(Component.CENTER_ALIGNMENT);
 		portField.setMaximumSize(new Dimension(frame.getWidth() / 10, frame.getHeight() / 12));
@@ -107,10 +139,6 @@ public class UserInterface implements DocumentListener {
 		portField.setColumns(5);
 		portField.getDocument().addDocumentListener(this);
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-
-		Font medium = null;
-		Font extraBold = null;
-		Font light = null;
 
 		try {
 			medium = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/jetbrainsmono/JetBrainsMono-Medium.ttf"));
@@ -146,7 +174,7 @@ public class UserInterface implements DocumentListener {
 		brandPanel.setBackground(Color.decode("#191F24"));
 		brandPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		brandPanel.setMaximumSize(new Dimension(frame.getWidth(), firstWord.getHeight() + 50));
-		
+
 		editionLabel.setFont(new Font(light.getFontName(), Font.TRUETYPE_FONT, 16));
 		editionLabel.setForeground(Color.white);
 		editionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -154,7 +182,11 @@ public class UserInterface implements DocumentListener {
 		portLabel.setForeground(Color.LIGHT_GRAY);
 		portLabel.setFont(new Font(light.getFontName(), Font.TRUETYPE_FONT, 20));
 		portLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		portLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+		portError.setForeground(Color.red);
+		portError.setAlignmentX(Component.CENTER_ALIGNMENT);
+		portError.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+		portError.setFont(new Font(light.getName(), Font.TRUETYPE_FONT, 12));
 
 		nameField.setAlignmentX(Component.CENTER_ALIGNMENT);
 		nameField.setMaximumSize(new Dimension(frame.getWidth() / 5, frame.getHeight() / 12));
@@ -165,30 +197,35 @@ public class UserInterface implements DocumentListener {
 		nameField.setColumns(15);
 		nameField.setFont(new Font(medium.getFontName(), Font.TRUETYPE_FONT, 32));
 		nameField.getDocument().addDocumentListener(this);
-		
+
 		nameLabel.setForeground(Color.LIGHT_GRAY);
 		nameLabel.setFont(new Font(light.getFontName(), Font.TRUETYPE_FONT, 20));
 		nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		nameLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
-		
+
+		nameError.setForeground(Color.red);
+		nameError.setAlignmentX(Component.CENTER_ALIGNMENT);
+		nameError.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
+		nameError.setFont(new Font(light.getName(), Font.TRUETYPE_FONT, 12));
+
 		startButton.setFont(new Font(medium.getFontName(), Font.TRUETYPE_FONT, 28));
 		startButton.setFocusPainted(false);
 		startButton.setBackground(Color.white);
 		startButton.setForeground(Color.decode("#191F24"));
 		startButton.setBorder(BorderFactory.createEmptyBorder());
-		startButton.setMaximumSize(new Dimension(frame.getWidth()/ 8, frame.getHeight() / 20));
+		startButton.setMaximumSize(new Dimension(frame.getWidth() / 8, frame.getHeight() / 20));
 		startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		startButton.addActionListener(this);
 		startButton.addMouseListener(new MouseAdapter() {
-			
+
 			public void mouseEntered(MouseEvent e) {
 				startButton.setForeground(Color.decode("#1C5AC4"));
 			}
-			
+
 			public void mouseExited(MouseEvent e) {
 				startButton.setForeground(Color.decode("#191F24"));
 			}
-			
+
 		});
 
 		// Adding components to containers
@@ -200,8 +237,10 @@ public class UserInterface implements DocumentListener {
 		startPanel.add(editionLabel);
 		startPanel.add(portField);
 		startPanel.add(portLabel);
+		startPanel.add(portError);
 		startPanel.add(nameField);
 		startPanel.add(nameLabel);
+		startPanel.add(nameError);
 		startPanel.add(startButton);
 
 		mainPanel.add(startPanel, BorderLayout.CENTER);
@@ -213,6 +252,66 @@ public class UserInterface implements DocumentListener {
 		frame.setIconImage(new ImageIcon("images/coffee-icon.jpg").getImage());
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
+
+	}
+
+	public JPanel getServerPanel() {
+		// Instantiating Components
+		serverPanel = new JPanel(new BorderLayout());
+
+		navigationPanel = new JPanel(new GridLayout(1, 2));
+		centerPanel = new JPanel();
+		sidePanel = new JPanel();
+
+		navLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		navRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+		serverStartButton = new JButton("▶️");
+		serverStopButton = new JButton("■");
+
+		// Setting Appearance
+		navigationPanel.setBackground(Color.decode("#15293C"));
+		navigationPanel.setPreferredSize(new Dimension(frame.getWidth(), 50));
+
+		sidePanel.setBackground(Color.decode("#0f1b26"));
+		sidePanel.setPreferredSize(new Dimension(335, frame.getHeight() - navigationPanel.getHeight()));
+
+		centerPanel.setBackground(Color.decode("#191F24"));
+
+		navLeft.setBackground(Color.decode("#15293C"));
+
+		navRight.setBackground(Color.decode("#15293C"));
+
+		serverStartButton.setForeground(Color.decode("#A2FAA3"));
+		serverStartButton.setFont(new Font("temp", Font.PLAIN, 28));
+		serverStartButton.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 0));
+		serverStartButton.setBackground(Color.decode("#15293C"));
+		serverStartButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		serverStartButton.setFocusPainted(false);
+		serverStartButton.addActionListener(this);
+		
+		serverStopButton.setForeground(Color.decode("#F63F3C"));
+		serverStopButton.setFont(new Font("temp", Font.PLAIN, 28));
+		serverStopButton.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 20));
+		serverStopButton.setBackground(Color.decode("#15293C"));
+		serverStopButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		serverStopButton.setFocusPainted(false);
+		serverStopButton.addActionListener(this);
+
+		// Adding Components to their Containers
+		navRight.add(serverStartButton);
+		navRight.add(serverStopButton);
+
+		navigationPanel.add(navLeft);
+		navigationPanel.add(navRight);
+
+		serverPanel.add(navigationPanel, BorderLayout.NORTH);
+		serverPanel.add(centerPanel, BorderLayout.CENTER);
+		serverPanel.add(sidePanel, BorderLayout.WEST);
+
+		// Finishing Statements
+
+		return serverPanel;
 
 	}
 
@@ -230,6 +329,47 @@ public class UserInterface implements DocumentListener {
 
 	public void changedUpdate(DocumentEvent e) {
 		// TODO Auto-generated method stub
+
+	}
+
+	public void actionPerformed(ActionEvent e) {
+
+		if (e.getSource() == startButton) {
+
+			boolean canSet = true;
+			int tempPort = -1;
+
+			try { // Checking to see if the entered port is numerical
+				tempPort = Integer.parseInt(portField.getText());
+			} catch (NumberFormatException ex) {
+				portError.setText("Invalid Port");
+				canSet = false;
+			}
+
+			if (tempPort > 65535 || tempPort < 1024) { // Checking to see if the port is within valid range
+				portError.setText("Invalid Port");
+				canSet = false;
+			} else {
+				portError.setText("");
+			}
+
+			if (nameField.getText().isEmpty()) { // Checking to see if the discoverable name is empty
+				nameError.setText("Invalid Name");
+				canSet = false;
+			} else {
+				nameError.setText("");
+			}
+
+			if (canSet == true) { // if all conditions are met, move forward
+				try {
+					App.setServer(Integer.parseInt(portField.getText()), nameField.getText());
+					setView(getServerPanel());
+				} catch (Throwable t) {
+					portError.setText("Port may already be in use. Try another."); // sometimes a port may already be in
+																					// use
+				}
+			}
+		}
 
 	}
 

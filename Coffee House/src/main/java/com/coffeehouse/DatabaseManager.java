@@ -6,6 +6,9 @@ import java.sql.SQLException;
 
 public class DatabaseManager {
 	
+	public int PORT;
+	public String DISPLAY_NAME;
+	
 	private Connection connection;
 	
 	public DatabaseManager(String databasePath) {
