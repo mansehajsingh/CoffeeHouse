@@ -20,14 +20,18 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.BadLocationException;
 
 public class UserInterface implements DocumentListener, ActionListener {
+	
+	DynamicGUI dynamicManager = new DynamicGUI();
 
 	// Primary Components
 	public JFrame frame;
@@ -70,6 +74,10 @@ public class UserInterface implements DocumentListener, ActionListener {
 
 	public JButton serverStartButton;
 	public JButton serverStopButton;
+
+	// Side Panel Components
+	public JScrollPane sideScroll;
+	public JPanel sideScrollPanel;
 
 	public UserInterface() {
 	}
@@ -261,7 +269,7 @@ public class UserInterface implements DocumentListener, ActionListener {
 
 		navigationPanel = new JPanel(new GridLayout(1, 2));
 		centerPanel = new JPanel();
-		sidePanel = new JPanel();
+		sidePanel = new JPanel(new GridLayout(2, 1));
 
 		navLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		navRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -269,12 +277,44 @@ public class UserInterface implements DocumentListener, ActionListener {
 		serverStartButton = new JButton("▶️");
 		serverStopButton = new JButton("■");
 
+		sideScrollPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		sideScroll = new JScrollPane(sideScrollPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
 		// Setting Appearance
 		navigationPanel.setBackground(Color.decode("#15293C"));
 		navigationPanel.setPreferredSize(new Dimension(frame.getWidth(), 50));
 
 		sidePanel.setBackground(Color.decode("#0f1b26"));
 		sidePanel.setPreferredSize(new Dimension(335, frame.getHeight() - navigationPanel.getHeight()));
+		
+		sideScrollPanel.setBackground(sidePanel.getBackground());
+		
+		sideScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+		    @Override
+		    protected void configureScrollBarColors() {
+		        this.thumbColor = Color.decode("#a3a3a3");
+		        this.trackColor = Color.white;
+		    }
+		    
+		    @Override
+	        protected JButton createDecreaseButton(int orientation) {
+	            JButton noButton = new JButton();
+	            noButton.setVisible(false);
+	            noButton.setPreferredSize(new Dimension(0, 0));
+	            return noButton;
+	        }
+		    
+		    protected JButton createIncreaseButton(int orientation) {
+	            JButton noButton = new JButton();
+	            noButton.setVisible(false);
+	            noButton.setPreferredSize(new Dimension(0, 0));
+	            return noButton;
+	        }
+		    
+		});
+		sideScroll.setBorder(BorderFactory.createEmptyBorder());
+		sideScroll.getVerticalScrollBar().setUnitIncrement(15);
 
 		centerPanel.setBackground(Color.decode("#191F24"));
 
@@ -289,14 +329,17 @@ public class UserInterface implements DocumentListener, ActionListener {
 		serverStartButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		serverStartButton.setFocusPainted(false);
 		serverStartButton.addActionListener(this);
-		
-		serverStopButton.setForeground(Color.decode("#F63F3C"));
+		serverStartButton.setToolTipText("start server");
+
+		// serverStopButton.setForeground(Color.decode("#F63F3C"));
+		serverStopButton.setForeground(Color.gray);
 		serverStopButton.setFont(new Font("temp", Font.PLAIN, 28));
 		serverStopButton.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 20));
 		serverStopButton.setBackground(Color.decode("#15293C"));
 		serverStopButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		serverStopButton.setFocusPainted(false);
 		serverStopButton.addActionListener(this);
+		serverStopButton.setToolTipText("stop server");
 
 		// Adding Components to their Containers
 		navRight.add(serverStartButton);
@@ -304,13 +347,29 @@ public class UserInterface implements DocumentListener, ActionListener {
 
 		navigationPanel.add(navLeft);
 		navigationPanel.add(navRight);
+		
+		sidePanel.add(sideScroll);
 
 		serverPanel.add(navigationPanel, BorderLayout.NORTH);
 		serverPanel.add(centerPanel, BorderLayout.CENTER);
 		serverPanel.add(sidePanel, BorderLayout.WEST);
 
 		// Finishing Statements
-
+		ArrayList<String> names = new ArrayList<String>();
+		names.add("jones");
+		names.add("usnavi");
+		names.add("les");
+		names.add("ashley");
+		names.add("vanessa");
+		names.add("john");
+		names.add("rick");
+		names.add("phoenix");
+		names.add("jaoquin");
+		names.add("mountain");
+		names.add("fifteen grand");
+		names.add("rich");
+		dynamicManager.populateSidePanel(sideScrollPanel, names, new Font(light.getFontName(), Font.TRUETYPE_FONT, 20));
+		
 		return serverPanel;
 
 	}
@@ -363,10 +422,10 @@ public class UserInterface implements DocumentListener, ActionListener {
 			if (canSet == true) { // if all conditions are met, move forward
 				try {
 					App.setServer(Integer.parseInt(portField.getText()), nameField.getText());
-					setView(getServerPanel());
+					setView(getServerPanel());			
 				} catch (Throwable t) {
-					portError.setText("Port may already be in use. Try another."); // sometimes a port may already be in
-																					// use
+					t.printStackTrace();
+					portError.setText("Port may already be in use. Try another."); // sometimes a port may already be in use
 				}
 			}
 		}

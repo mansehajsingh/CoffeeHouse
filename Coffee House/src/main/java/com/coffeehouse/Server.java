@@ -3,6 +3,7 @@ package com.coffeehouse;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -18,10 +19,10 @@ public class Server {
 	private String serverName;
 	private ServerSocket serverSocket;
 
-	private HashMap<String, ServerThread> activeThreads = new HashMap<String, ServerThread>();
+	private ArrayList<ServerThread> activeThreads = new ArrayList<ServerThread>();
 
 	private Thread mainThread;
-	
+
 	private boolean isActive;
 
 	/**
@@ -32,6 +33,7 @@ public class Server {
 	 */
 	public Server(int port, String serverName) {
 		this.port = port;
+		this.serverName = serverName;
 
 		try {
 
@@ -52,8 +54,21 @@ public class Server {
 		return port;
 	}
 
+	/**
+	 * Returns the discoverable name of the server
+	 * 
+	 * @return the discoverable name of the server
+	 */
 	public String getServerName() {
 		return serverName;
+	}
+	
+	public void removeThread(ServerThread e) {
+		activeThreads.remove(e);
+	}
+	
+	public ArrayList<ServerThread> getActiveThreads() {	
+		return activeThreads;
 	}
 
 	/**
@@ -66,13 +81,12 @@ public class Server {
 	}
 
 	public void activate() {
-		
+
 		isActive = true;
 
-		mainThread = new Thread() {
+		Thread mainThread = new Thread() {
 
 			public void run() {
-
 				while (true) { // infinite loop
 
 					if (activeThreads.size() <= 30) { // we do not want to exceed a maximum of 30 threads on the server
@@ -83,13 +97,20 @@ public class Server {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						
 						ServerThread serverThread = new ServerThread(clientSocket);
+						
+						activeThreads.add(serverThread);
+						
 						serverThread.start();
 					}
 				}
 
 			}
+
 		};
+		
+		mainThread.start();
 
 	}
 
