@@ -19,14 +19,14 @@ public class DynamicGUI {
 		
 	}
 	
-	public void populateSidePanel(final JPanel insertPanel, ArrayList<String> names, final Font font) {
+	public void populateSidePanel(final JPanel insertPanel, ArrayList<ServerThread> activeThreads, final Font font) {
 		
 		insertPanel.removeAll();
 		
-		insertPanel.setPreferredSize(new Dimension(insertPanel.getWidth(), names.size() * 50));
+		insertPanel.setPreferredSize(new Dimension(insertPanel.getWidth(), activeThreads.size() * 50));
 		
-		for(String name : names) {	
-			final JButton button = new JButton("to " + name);
+		for(ServerThread thread : activeThreads) {	
+			final JButton button = new JButton("to " + thread.getUser().getUsername());
 			
 			button.setForeground(Color.white);
 			button.setBackground(insertPanel.getBackground());

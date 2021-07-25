@@ -30,7 +30,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.text.BadLocationException;
 
 public class UserInterface implements DocumentListener, ActionListener {
-	
+
 	DynamicGUI dynamicManager = new DynamicGUI();
 
 	// Primary Components
@@ -78,6 +78,10 @@ public class UserInterface implements DocumentListener, ActionListener {
 	// Side Panel Components
 	public JScrollPane sideScroll;
 	public JPanel sideScrollPanel;
+
+	public JPanel serverInfoPanel;
+	public JLabel infoPortLabel;
+	public JLabel infoNameLabel;
 
 	public UserInterface() {
 	}
@@ -281,40 +285,58 @@ public class UserInterface implements DocumentListener, ActionListener {
 		sideScroll = new JScrollPane(sideScrollPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
+		serverInfoPanel = new JPanel();
+		BoxLayout infoLayout = new BoxLayout(serverInfoPanel, BoxLayout.Y_AXIS);
+		serverInfoPanel.setLayout(infoLayout);
+
+		infoPortLabel = new JLabel("port: " + App.getServer().getPort());
+		infoNameLabel = new JLabel("name: " + App.getServer().getServerName());
+
 		// Setting Appearance
 		navigationPanel.setBackground(Color.decode("#15293C"));
 		navigationPanel.setPreferredSize(new Dimension(frame.getWidth(), 50));
 
 		sidePanel.setBackground(Color.decode("#0f1b26"));
 		sidePanel.setPreferredSize(new Dimension(335, frame.getHeight() - navigationPanel.getHeight()));
-		
+
 		sideScrollPanel.setBackground(sidePanel.getBackground());
-		
+
 		sideScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-		    @Override
-		    protected void configureScrollBarColors() {
-		        this.thumbColor = Color.decode("#a3a3a3");
-		        this.trackColor = Color.white;
-		    }
-		    
-		    @Override
-	        protected JButton createDecreaseButton(int orientation) {
-	            JButton noButton = new JButton();
-	            noButton.setVisible(false);
-	            noButton.setPreferredSize(new Dimension(0, 0));
-	            return noButton;
-	        }
-		    
-		    protected JButton createIncreaseButton(int orientation) {
-	            JButton noButton = new JButton();
-	            noButton.setVisible(false);
-	            noButton.setPreferredSize(new Dimension(0, 0));
-	            return noButton;
-	        }
-		    
+			@Override
+			protected void configureScrollBarColors() {
+				this.thumbColor = Color.decode("#a3a3a3");
+				this.trackColor = Color.white;
+			}
+
+			@Override
+			protected JButton createDecreaseButton(int orientation) {
+				JButton noButton = new JButton();
+				noButton.setVisible(false);
+				noButton.setPreferredSize(new Dimension(0, 0));
+				return noButton;
+			}
+
+			protected JButton createIncreaseButton(int orientation) {
+				JButton noButton = new JButton();
+				noButton.setVisible(false);
+				noButton.setPreferredSize(new Dimension(0, 0));
+				return noButton;
+			}
+
 		});
-		sideScroll.setBorder(BorderFactory.createEmptyBorder());
+		sideScroll.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.white));
 		sideScroll.getVerticalScrollBar().setUnitIncrement(15);
+
+		serverInfoPanel.setBackground(sidePanel.getBackground());
+
+		infoPortLabel.setForeground(Color.white);
+		infoPortLabel.setFont(new Font(medium.getName(), Font.TRUETYPE_FONT, 28));
+		infoPortLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		infoPortLabel.setBorder(BorderFactory.createEmptyBorder(50, 0, 20, 0));
+
+		infoNameLabel.setForeground(Color.white);
+		infoNameLabel.setFont(new Font(medium.getName(), Font.TRUETYPE_FONT, 28));
+		infoNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		centerPanel.setBackground(Color.decode("#191F24"));
 
@@ -345,31 +367,21 @@ public class UserInterface implements DocumentListener, ActionListener {
 		navRight.add(serverStartButton);
 		navRight.add(serverStopButton);
 
+		serverInfoPanel.add(infoPortLabel);
+		serverInfoPanel.add(infoNameLabel);
+
 		navigationPanel.add(navLeft);
 		navigationPanel.add(navRight);
-		
+
 		sidePanel.add(sideScroll);
+		sidePanel.add(serverInfoPanel);
 
 		serverPanel.add(navigationPanel, BorderLayout.NORTH);
 		serverPanel.add(centerPanel, BorderLayout.CENTER);
 		serverPanel.add(sidePanel, BorderLayout.WEST);
 
 		// Finishing Statements
-		ArrayList<String> names = new ArrayList<String>();
-		names.add("jones");
-		names.add("usnavi");
-		names.add("les");
-		names.add("ashley");
-		names.add("vanessa");
-		names.add("john");
-		names.add("rick");
-		names.add("phoenix");
-		names.add("jaoquin");
-		names.add("mountain");
-		names.add("fifteen grand");
-		names.add("rich");
-		dynamicManager.populateSidePanel(sideScrollPanel, names, new Font(light.getFontName(), Font.TRUETYPE_FONT, 20));
-		
+
 		return serverPanel;
 
 	}
@@ -420,14 +432,33 @@ public class UserInterface implements DocumentListener, ActionListener {
 			}
 
 			if (canSet == true) { // if all conditions are met, move forward
+
 				try {
 					App.setServer(Integer.parseInt(portField.getText()), nameField.getText());
-					setView(getServerPanel());			
+					setView(getServerPanel());
 				} catch (Throwable t) {
 					t.printStackTrace();
-					portError.setText("Port may already be in use. Try another."); // sometimes a port may already be in use
+					portError.setText("Port may already be in use. Try another."); // sometimes a port may already be in
+																					// use
+					canSet = false;
 				}
+
+				if (canSet)
+					setView(getServerPanel());
+
 			}
+		} else if (e.getSource() == serverStartButton) {
+
+			serverStartButton.setForeground(Color.gray);
+			serverStopButton.setForeground(Color.decode("#cc2e23"));
+			
+			App.getServer().activate();
+			
+		} else if (e.getSource() == serverStopButton) {
+			
+			serverStartButton.setForeground(Color.decode("#A2FAA3"));
+			serverStopButton.setForeground(Color.gray);
+			
 		}
 
 	}

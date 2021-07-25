@@ -23,5 +23,9 @@ public class App {
 	public static Server getServer() {
 		return server;
 	}
+	
+	public static UserInterface getUserInterface() {
+		return UI;
+	}
 
 }

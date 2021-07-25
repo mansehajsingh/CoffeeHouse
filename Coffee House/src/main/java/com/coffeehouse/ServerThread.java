@@ -1,5 +1,6 @@
 package com.coffeehouse;
 
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,17 +44,38 @@ public class ServerThread extends Thread {
 		try {
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(clientIn));
-
-			String line;
-
-			while ((line = reader.readLine()) != null) {
+			
+			clientOut.write(("server: " + App.getServer().getServerName() + "\nusername: ").getBytes());
+			
+			String line = reader.readLine();
+			
+			boolean first = true;
+			
+			while(line != null) {
 				
-				String[] tokens = line.split("<<separator>>");
+				if(line.equalsIgnoreCase("exit")) {
+					break;
+				}
 				
+				if(first == true) {
+					user = new Account(line);
+					App.getUserInterface().dynamicManager.populateSidePanel(
+							App.getUserInterface().sideScrollPanel, 
+							App.getServer().getActiveThreads(), 
+							new Font(App.getUserInterface().light.getName(), Font.TRUETYPE_FONT, 28));
+				}
+				System.out.println(line);
+				line = reader.readLine();
+				first = false;
 			}
-
-			clientSocket.close();
+			
 			App.getServer().removeThread(this);
+			
+			App.getUserInterface().dynamicManager.populateSidePanel(
+					App.getUserInterface().sideScrollPanel, 
+					App.getServer().getActiveThreads(), 
+					new Font(App.getUserInterface().light.getName(), Font.TRUETYPE_FONT, 28));
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

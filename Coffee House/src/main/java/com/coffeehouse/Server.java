@@ -113,5 +113,9 @@ public class Server {
 		mainThread.start();
 
 	}
+	
+	public void deactivate() {
+		mainThread.stop();
+	}
 
 }
