@@ -19,11 +19,13 @@ public class Server {
 	private String serverName;
 	private ServerSocket serverSocket;
 
-	private ArrayList<ServerThread> activeThreads = new ArrayList<ServerThread>();
+	private ArrayList<ServerThread> activeThreads;
 
 	private Thread mainThread;
 
-	private boolean isActive;
+	private boolean isActive = false;
+	
+	private ArrayList<ArrayList<Message>> messageLogs;
 
 	/**
 	 * Server object.
@@ -34,15 +36,8 @@ public class Server {
 	public Server(int port, String serverName) {
 		this.port = port;
 		this.serverName = serverName;
-
-		try {
-
-			serverSocket = new ServerSocket(port);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		this.activeThreads = new ArrayList<ServerThread>();
+		this.messageLogs = new ArrayList<ArrayList<Message>>();
 	}
 
 	/**
@@ -83,8 +78,16 @@ public class Server {
 	public void activate() {
 
 		isActive = true;
+		
+		try {
 
-		Thread mainThread = new Thread() {
+			serverSocket = new ServerSocket(port);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		mainThread = new Thread() {
 
 			public void run() {
 				while (true) { // infinite loop
@@ -115,7 +118,7 @@ public class Server {
 	}
 	
 	public void deactivate() {
-		mainThread.stop();
+		
 	}
 
 }

@@ -34,9 +34,13 @@ public class ServerThread extends Thread {
 		}
 
 	}
-	
+
 	public Account getUser() {
 		return this.user;
+	}
+
+	public Socket getClientSocket() {
+		return clientSocket;
 	}
 
 	@Override
@@ -44,38 +48,53 @@ public class ServerThread extends Thread {
 		try {
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(clientIn));
-			
-			clientOut.write(("server: " + App.getServer().getServerName() + "\nusername: ").getBytes());
-			
-			String line = reader.readLine();
-			
-			boolean first = true;
-			
-			while(line != null) {
-				
-				if(line.equalsIgnoreCase("exit")) {
-					break;
-				}
-				
-				if(first == true) {
-					user = new Account(line);
-					App.getUserInterface().dynamicManager.populateSidePanel(
-							App.getUserInterface().sideScrollPanel, 
-							App.getServer().getActiveThreads(), 
-							new Font(App.getUserInterface().light.getName(), Font.TRUETYPE_FONT, 28));
-				}
-				System.out.println(line);
-				line = reader.readLine();
-				first = false;
-			}
-			
-			App.getServer().removeThread(this);
-			
-			App.getUserInterface().dynamicManager.populateSidePanel(
-					App.getUserInterface().sideScrollPanel, 
-					App.getServer().getActiveThreads(), 
+
+			user = new Account(reader.readLine());
+
+			App.getUserInterface().dynamicManager.populateSidePanel(App.getUserInterface().sideScrollPanel,
+					App.getServer().getActiveThreads(),
 					new Font(App.getUserInterface().light.getName(), Font.TRUETYPE_FONT, 28));
-			
+
+			while (true) {
+
+				String[] tokens = reader.readLine().split("<<separator>>");
+
+				int messageType = Integer.parseInt(tokens[0]);
+
+				boolean exited = false;
+
+				switch (messageType) {
+
+				case 0: // 0 is the exit code
+					exited = true;
+					break;
+				case 1: // 1 is the message code
+
+					System.out.println(user.getUsername() + " to " + tokens[1] + ": " + tokens[2]);
+
+					for (ServerThread activeThread : App.getServer().getActiveThreads()) {
+						if (activeThread.getUser().getUsername().equals(tokens[1])) {
+							activeThread.clientOut.write((user.getUsername() + ": " + tokens[2] + "\n").getBytes());
+						}
+					}
+
+					break;
+				default:
+					break;
+
+				}
+
+				if (exited == true)
+					break;
+
+			}
+
+			App.getServer().removeThread(this);
+
+			App.getUserInterface().dynamicManager.populateSidePanel(App.getUserInterface().sideScrollPanel,
+					App.getServer().getActiveThreads(),
+					new Font(App.getUserInterface().light.getName(), Font.TRUETYPE_FONT, 28));
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

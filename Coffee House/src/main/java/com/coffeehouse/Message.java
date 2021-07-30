@@ -1,6 +1,8 @@
 package com.coffeehouse;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
 	
 	private String body;
 	private Account sender;

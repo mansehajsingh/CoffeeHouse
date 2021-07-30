@@ -459,6 +459,8 @@ public class UserInterface implements DocumentListener, ActionListener {
 			serverStartButton.setForeground(Color.decode("#A2FAA3"));
 			serverStopButton.setForeground(Color.gray);
 			
+			App.getServer().deactivate();
+			
 		}
 
 	}
