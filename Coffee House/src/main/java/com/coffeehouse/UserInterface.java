@@ -272,7 +272,7 @@ public class UserInterface implements DocumentListener, ActionListener {
 		serverPanel = new JPanel(new BorderLayout());
 
 		navigationPanel = new JPanel(new GridLayout(1, 2));
-		centerPanel = new JPanel();
+		centerPanel = new JPanel(new BorderLayout());
 		sidePanel = new JPanel(new GridLayout(2, 1));
 
 		navLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -291,6 +291,9 @@ public class UserInterface implements DocumentListener, ActionListener {
 
 		infoPortLabel = new JLabel("port: " + App.getServer().getPort());
 		infoNameLabel = new JLabel("name: " + App.getServer().getServerName());
+		
+		JPanel bufferLeft = new JPanel();
+		JPanel bufferRight = new JPanel();
 
 		// Setting Appearance
 		navigationPanel.setBackground(Color.decode("#15293C"));
@@ -353,7 +356,6 @@ public class UserInterface implements DocumentListener, ActionListener {
 		serverStartButton.addActionListener(this);
 		serverStartButton.setToolTipText("start server");
 
-		// serverStopButton.setForeground(Color.decode("#F63F3C"));
 		serverStopButton.setForeground(Color.gray);
 		serverStopButton.setFont(new Font("temp", Font.PLAIN, 28));
 		serverStopButton.setBorder(BorderFactory.createEmptyBorder(3, 0, 0, 20));
@@ -362,6 +364,12 @@ public class UserInterface implements DocumentListener, ActionListener {
 		serverStopButton.setFocusPainted(false);
 		serverStopButton.addActionListener(this);
 		serverStopButton.setToolTipText("stop server");
+		
+		bufferRight.setBackground(mainPanel.getBackground());
+		bufferRight.setPreferredSize(new Dimension(30, frame.getHeight()));
+		
+		bufferLeft.setBackground(mainPanel.getBackground());
+		bufferLeft.setPreferredSize(new Dimension(30, frame.getHeight()));
 
 		// Adding Components to their Containers
 		navRight.add(serverStartButton);
@@ -375,6 +383,12 @@ public class UserInterface implements DocumentListener, ActionListener {
 
 		sidePanel.add(sideScroll);
 		sidePanel.add(serverInfoPanel);
+		
+		MessagePane pane = new MessagePane("Joan");
+		
+		centerPanel.add(pane, BorderLayout.CENTER);
+		centerPanel.add(bufferLeft, BorderLayout.EAST);
+		centerPanel.add(bufferRight, BorderLayout.WEST);
 
 		serverPanel.add(navigationPanel, BorderLayout.NORTH);
 		serverPanel.add(centerPanel, BorderLayout.CENTER);
