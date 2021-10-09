@@ -2,7 +2,7 @@
 ### LAN Chat System
 
 ```
-Note: This project has been abandoned.
+Note: This project is defunct.
 ```
 
 Coffee House is an instant messaging application that operates over any local area network 
